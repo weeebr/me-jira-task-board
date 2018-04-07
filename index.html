@@ -10,13 +10,21 @@ function allowDrop(ev) {
 function drag(ev) {
 	console.log(ev.path[0].childNodes[3].textContent);
     ev.dataTransfer.setData("task-id", ev.path[0].childNodes[1].textContent);
-	//document.getElementById("task-details").style.display = "none";
-	
-	
+	let taskAreas = document.getElementsByClassName("tasks");
+
+	for (let i=0; i<taskAreas.length; i++) {
+		taskAreas[i].style.border = "1px dashed grey";
+	}
 }
 
 function drop(ev) {
     ev.preventDefault();
+	
+	let taskAreas = document.getElementsByClassName("tasks");
+
+	for (let i=0; i<taskAreas.length; i++) {
+		taskAreas[i].style.border = "none";
+	}
 	
     let id = ev.dataTransfer.getData("task-id");
 	
@@ -25,11 +33,16 @@ function drop(ev) {
 	
     ev.target.appendChild(taskHtml);
 	
+	console.log(ev);
+	
+	document.getElementById("open-tasks-count").textContent--;
+	document.getElementById("closed-tasks-count").textContent++;
+	
 	updateTask(taskHtml);
 }
 
+
 function addTask(taskHtml) {
-			
 	let task = {
 		id: task.childNodes[1].textContent,
 		name: task.childNodes[3].textContent,
@@ -60,47 +73,47 @@ function updateTask(taskHtml) {
 		};
 		let tasks = JSON.parse(xhr.responseText);
 
-		let idx = tasks.findIndex(findTaskInArray(task.id));
+		let idx = tasks.findIndex(x => x.id === task.id);
+		
+		tasks[idx].name = task.name;
+		tasks[idx].category = task.category;
 
-		console.log(idx);
-
+		console.log(tasks);
 	};
 
 	xhr.send();
 }
 
-function findTaskInArray(task, id) {
-	return 1;
-}
+
 
 </script>
 <link rel="stylesheet" type="text/css" href="styles.css" /> 
 </head>
 <body>
 
-<div class="row">
-	<h1 class="row-name"><strong>2</strong> To Do</h1>
+<div class="col">
+	<h1 class="col-name"><strong id="open-tasks-count">3</strong> To Watch</h1>
 	<div class="tasks" ondrop="drop(event)" ondragover="allowDrop(event)">
 		<div class="task" draggable="true" ondragstart="drag(event)">
 			<p class="task-id">MOV-01</p>
-			<h1 class="task-name">Fantastic Four</h1>
-			<p class="task-category">Kategorie</p>
+			<h1 class="task-name">The Shape of Water</h1>
+			<p class="task-category">Drama</p>
 		</div>
 		<div class="task" draggable="true" ondragstart="drag(event)">
 			<p class="task-id">MOV-02</p>
-			<h1 class="task-name">Engage Saturn Shuttle lines for group tours</h1>
-			<p class="task-category">Kategorie</p>
+			<h1 class="task-name">Red Sparrow</h1>
+			<p class="task-category">Thriller</p>
 		</div>
 		<div class="task" draggable="true" ondragstart="drag(event)">
 			<p class="task-id">MOV-03</p>
-			<h1 class="task-name">A Beautiful Mind</h1>
-			<p class="task-category">Kategorie</p>
+			<h1 class="task-name">Annihiliation</h1>
+			<p class="task-category">Drama</p>
 		</div>
 	</div>
 </div>
 
-<div class="row">
-	<h1 class="row-name">Done</h1>
+<div class="col">
+	<h1 class="col-name"><strong id="closed-tasks-count">0</strong> Done</h1>
 	<div class="tasks" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
 </div>
 
