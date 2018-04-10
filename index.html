@@ -9,56 +9,43 @@ function allowDrop(ev) {
 
 function drag(ev) {
 	console.log(ev.path[0].childNodes[3].textContent);
-    ev.dataTransfer.setData("task-id", ev.path[0].childNodes[1].textContent);
-	let taskAreas = document.getElementsByClassName("tasks");
-
-	for (let i=0; i<taskAreas.length; i++) {
-		taskAreas[i].style.border = "1px dashed grey";
-	}
+	let taskId = ev.path[0].childNodes[1].textContent;
+    ev.dataTransfer.setData("task-id", taskId);
+	
+	toggleTaskAreaBorders('on');
 }
 
 function drop(ev) {
+	console.log(ev);
     ev.preventDefault();
 	
-	let taskAreas = document.getElementsByClassName("tasks");
-
-	for (let i=0; i<taskAreas.length; i++) {
-		taskAreas[i].style.border = "none";
-	}
-	
-    let id = ev.dataTransfer.getData("task-id");
-	
-	let taskHtml = Array.from(document.querySelectorAll('.task'))
-		.find(el => el.childNodes[1].textContent === id)
-	
+	let taskHtml = getDraggedTask(ev);
     ev.target.appendChild(taskHtml);
 	
-	console.log(ev);
-	
-	document.getElementById("open-tasks-count").textContent--;
-	document.getElementById("closed-tasks-count").textContent++;
-	
+	toggleTaskAreaBorders('off');
+	updateTaskCounts();
 	updateTask(taskHtml);
 }
 
-
-function addTask(taskHtml) {
-	let task = {
-		id: task.childNodes[1].textContent,
-		name: task.childNodes[3].textContent,
-		category: task.childNodes[5].textContent
-	};
+function getDraggedTask(ev) {
+	let id = ev.dataTransfer.getData("task-id");
 	
-	let xhr = new XMLHttpRequest();
-	xhr.open('GET', 'db.json', true);
+	return Array.from(document.querySelectorAll('.task'))
+		.find(el => el.childNodes[1].textContent === id)
+}
 
-	xhr.onload = function () {
-	  let tasks = JSON.parse(xhr.responseText);
-	  tasks.push(task);
-	  console.log(tasks);
-	};
+function toggleTaskAreaBorders(state) {
+	let taskAreas = document.getElementsByClassName("tasks");
+	let borderStyle = (state === 'on') ? "1px dashed grey" : "none";
 	
-	xhr.send(null);
+	for (let i=0; i<taskAreas.length; i++) {
+		taskAreas[i].style.border = borderStyle;
+	}
+}
+
+function updateTaskCounts() {
+	document.getElementById("open-tasks-count").textContent--;
+	document.getElementById("closed-tasks-count").textContent++;
 }
 
 function updateTask(taskHtml) {
